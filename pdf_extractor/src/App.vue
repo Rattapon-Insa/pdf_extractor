@@ -9,12 +9,23 @@
         type="file"
         multiple
         @change="onFileChange"
+        :disabled="isUploading || isSummarizing"
       />
     </div>
 
     <div class="upload-buttons">
-      <button @click="uploadFiles">Upload Files</button>
-      <button @click="summarize">Summarize</button>
+      <button
+        :disabled="isUploading || isSummarizing || !selectedFiles.length"
+        @click="uploadFiles"
+      >
+        {{ isUploading ? "Uploading..." : "Upload Files" }}
+      </button>
+      <button
+        :disabled="isUploading || isSummarizing"
+        @click="summarize"
+      >
+        {{ isSummarizing ? "Summarizing..." : "Summarize" }}
+      </button>
     </div>
 
     <div v-if="summary" class="summary-section">
@@ -32,7 +43,9 @@ export default {
   data() {
     return {
       selectedFiles: [],
-      summary: ""
+      summary: "",
+      isUploading: false,
+      isSummarizing: false
     }
   },
   methods: {
@@ -47,6 +60,7 @@ export default {
         return
       }
 
+      this.isUploading = true
       try {
         // Upload each file to your Flask endpoint
         for (let file of this.selectedFiles) {
@@ -59,23 +73,27 @@ export default {
             },
           })
         }
-
         alert("All files uploaded successfully!")
         this.selectedFiles = [] // Clear the file list after upload
       } catch (error) {
         console.error("Upload error:", error)
-        alert("Error uploading files.")
+        alert("Upload error:", error)
+      } finally {
+        this.isUploading = false
       }
     },
 
     async summarize() {
+      // Disables the Summarize button while summarizing
+      this.isSummarizing = true
       try {
         const response = await axios.get('http://127.0.0.1:5000/summarize')
-        // The Flask endpoint should return JSON: { "summary": "<text>" }
         this.summary = response.data.summary || ""
       } catch (error) {
         console.error("Summarization error:", error)
-        alert("Error fetching summary.")
+        alert("Summarization error: " + error.message || error);
+      } finally {
+        this.isSummarizing = false
       }
     }
   }
