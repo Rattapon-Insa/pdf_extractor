@@ -6,21 +6,22 @@ routes = Blueprint('routes', __name__)
 extractor = Extractor()
 
 @routes.route('/process', methods=['POST'])
-def process_file():
-    # Upload single file
-    file = request.files.get('file')
-    if not file:
-        return jsonify({"error": "No file provided"}), 400
+def process_files():
+    files = request.files.getlist("file")  # Get all uploaded files
+    if not files:
+        return jsonify({"error": "No files provided"}), 400
 
-    # Save file to the input folder or process immediately
-    file.save(f"{extractor.input_folder}/{file.filename}")
+    results = []
+    for file in files:
+        try:
+            # Save each file and process it
+            file.save(f"{extractor.input_folder}/{file.filename}")
+            output_file = extractor.process_file(file.filename)
+            results.append({"file": file.filename, "output": output_file})
+        except Exception as e:
+            results.append({"file": file.filename, "error": str(e)})
 
-    try:
-        # Extractor processes it
-        output_file = extractor.process_file(file.filename)
-        return jsonify({"message": "File processed successfully", "output_file": output_file})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    return jsonify({"results": results}), 200
 
 @routes.route('/summarize', methods=['GET'])
 def summarize():
