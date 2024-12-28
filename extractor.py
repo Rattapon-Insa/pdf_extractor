@@ -4,6 +4,7 @@ import os
 import google.generativeai as genai
 import openai
 from dotenv import load_dotenv
+from pdf2image import convert_from_path
 
 # Load API keys
 load_dotenv()
@@ -13,11 +14,18 @@ openai.api_key = os.getenv("OPEN_AI_API_KEY")
 
 
 class Extractor:
-    def __init__(self, input_folder="input_files", output_folder="output_texts"):
+    def __init__(
+        self,
+        input_folder="input_files",
+        output_folder="output_texts",
+        temp_folder="temp_images",
+    ):
         self.input_folder = input_folder
         self.output_folder = output_folder
+        self.temp_folder = temp_folder
         os.makedirs(self.input_folder, exist_ok=True)
         os.makedirs(self.output_folder, exist_ok=True)
+        os.makedirs(self.temp_folder, exist_ok=True)
 
     def upload_to_gemini(self, path):
         """Uploads a file to Gemini API."""
@@ -27,6 +35,20 @@ class Extractor:
         file = genai.upload_file(path, mime_type=mime_type)
         print(f"Uploaded file: {file.uri}")
         return file
+
+    def pdf_to_jpg(self, pdf_path):
+        """Converts a PDF to JPG images and saves them in the temp folder."""
+        images = convert_from_path(pdf_path, dpi=300)
+        jpg_files = []
+        for i, image in enumerate(images):
+            image_path = os.path.join(
+                self.temp_folder,
+                f"{os.path.splitext(os.path.basename(pdf_path))[0]}_page_{i + 1}.jpg",
+            )
+            image.save(image_path, "JPEG")
+            jpg_files.append(image_path)
+            print(f"Saved: {image_path}")
+        return jpg_files
 
     def extract_information(self, file_path):
         """Extracts information from the uploaded file using Gemini."""
@@ -59,11 +81,20 @@ class Extractor:
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"File {file_path} not found.")
 
-        extracted_text = self.extract_information(file_path)
+        # If the file is a PDF, convert it to JPGs first
+        if filename.lower().endswith(".pdf"):
+            print(f"Processing PDF: {filename}")
+            jpg_files = self.pdf_to_jpg(file_path)
+            extracted_text = ""
+            for jpg_file in jpg_files:
+                extracted_text += self.extract_information(jpg_file) + "\n"
+        else:
+            print(f"Processing non-PDF file: {filename}")
+            extracted_text = self.extract_information(file_path)
+
         output_file = os.path.join(
             self.output_folder, f"{os.path.splitext(filename)[0]}.txt"
         )
-
         with open(output_file, "w", encoding="utf-8") as f:
             f.write(extracted_text)
         print(f"Extracted text saved to {output_file}")
@@ -89,7 +120,7 @@ class Extractor:
 
         try:
             response = openai.chat.completions.create(
-                model="gpt-4",
+                model="gpt-4o-mini",
                 messages=[
                     {
                         "role": "system",
@@ -101,7 +132,7 @@ class Extractor:
                     },
                 ],
                 temperature=0.1,
-                max_tokens=5000,
+                max_tokens=9000,
                 top_p=1,
                 frequency_penalty=0,
                 presence_penalty=0,
