@@ -81,7 +81,7 @@ export default {
       uploadProgress: 0,
       uploadedCount: 0,
       summary: "",
-      customPrompt: "Summarize the following information from the uploaded files.",
+      customPrompt: "Summarize the following information from the uploaded files as much detail as possible. try to put it in the same format.",
       isUploading: false,
       isSummarizing: false,
       isDragOver: false,

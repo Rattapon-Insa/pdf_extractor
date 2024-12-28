@@ -115,7 +115,7 @@ class Extractor:
         # Use default prompt if no custom prompt is provided
         prompt = (
             prompt
-            or "Consolidate the following information in as much detail as possible from multiple files."
+            or "Summarize the following information from the uploaded files as much detail as possible. try to put it in the same format."
         )
 
         try:
