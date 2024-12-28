@@ -178,10 +178,10 @@ export default {
     },
     formatSummary(summary) {
       return summary
-        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>") // Bold
-        .replace(/### (.*?)\n/g, "<h3>$1</h3>") // Headings
-        .replace(/- /g, "• ") // Bullet points
-        .replace(/\n/g, "<br>"); // Line breaks
+        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+        .replace(/### (.*?)\n/g, "<h3>$1</h3>")
+        .replace(/- /g, "• ")
+        .replace(/\n/g, "<br>");
     },
   },
   created() {
@@ -306,5 +306,22 @@ button:hover {
 button:disabled {
   background-color: #cccccc;
   cursor: not-allowed;
+}
+
+/* Responsive Design */
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .action-buttons {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  button {
+    margin-right: 0;
+  }
 }
 </style>
