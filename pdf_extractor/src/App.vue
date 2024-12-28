@@ -1,10 +1,7 @@
-<template>
-  <div :class="['app-container', { dark: isDarkMode }]">
+\<template>
+  <div class="app-container">
     <header>
       <h1>Gemini + GPT Summarization</h1>
-      <button class="dark-mode-toggle" @click="toggleDarkMode">
-        {{ isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode" }}
-      </button>
     </header>
 
     <main>
@@ -80,7 +77,6 @@ export default {
       isSummarizing: false, // Tracks if summarization is in progress
       isDragOver: false, // Tracks if a file is being dragged over the drop zone
       notification: { message: "", type: "" }, // For success/error notifications
-      isDarkMode: false, // Tracks dark mode state
     };
   },
   methods: {
@@ -164,10 +160,6 @@ export default {
     formatSummary(summary) {
       return summary.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/- /g, "• ");
     },
-    toggleDarkMode() {
-      this.isDarkMode = !this.isDarkMode;
-      document.body.classList.toggle("dark", this.isDarkMode);
-    },
   },
 };
 </script>
@@ -180,7 +172,7 @@ export default {
 }
 header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   margin-bottom: 1rem;
 }
