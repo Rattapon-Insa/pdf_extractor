@@ -39,6 +39,9 @@
         <button :disabled="isUploading || isSummarizing" @click="summarize">
           {{ isSummarizing ? "Summarizing..." : "Summarize" }}
         </button>
+        <button :disabled="isUploading || isSummarizing" @click="clearSession" class="clear-button">
+          Clear Session
+        </button>
       </section>
 
       <!-- Notification -->
@@ -128,6 +131,21 @@ export default {
         this.showNotification("Error summarizing files.", "error");
       } finally {
         this.isSummarizing = false;
+      }
+    },
+    async clearSession() {
+      try {
+        const response = await axios.post("http://127.0.0.1:5000/clear");
+        this.showNotification(response.data.message, "success");
+
+        // Clear frontend data
+        this.selectedFiles = [];
+        this.summary = "";
+        this.uploadedCount = 0;
+        this.uploadProgress = 0;
+      } catch (error) {
+        console.error("Error clearing session:", error);
+        this.showNotification("Failed to clear session.", "error");
       }
     },
     showNotification(message, type) {
@@ -228,5 +246,23 @@ main {
 }
 .app-container.dark .summary-section {
   background-color: #333;
+}
+
+/* Clear Session Button */
+.clear-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.clear-button:hover {
+  background-color: #c82333;
+}
+.clear-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 </style>
