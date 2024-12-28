@@ -30,10 +30,12 @@
       </button>
     </div>
 
-    <!-- Summary Display Section -->
+    <!-- Enhanced Summary Display Section -->
     <div v-if="summary" class="summary-section">
       <h2>Summary</h2>
-      <pre>{{ summary }}</pre>
+      <div class="summary-text">
+        {{ summary }}
+      </div>
     </div>
   </div>
 </template>
@@ -109,27 +111,57 @@ export default {
 .container {
   width: 600px;
   margin: 0 auto;
+  font-family: Arial, sans-serif;
 }
 
-.upload-section,
+h1 {
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.upload-section {
+  margin-bottom: 1rem;
+}
+
 .upload-buttons {
-  margin: 1rem 0;
-}
-
-.summary-section {
-  margin-top: 2rem;
-  background-color: #f5f5f5;
-  padding: 1rem;
-  border-radius: 4px;
+  margin-bottom: 2rem;
 }
 
 button {
   margin-right: 1rem;
   padding: 0.5rem 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
+}
+
+.summary-section {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.summary-section h2 {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.summary-text {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #555;
+  white-space: pre-line; /* Preserve newlines and spacing */
 }
 </style>
