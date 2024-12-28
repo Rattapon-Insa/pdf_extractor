@@ -84,18 +84,18 @@ class Extractor:
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are a helpful assistant specializing in consolidating and summarizing information.",
+                        "content": "You are a helpful assistant specializing in consolidating information.",
                     },
                     {
                         "role": "user",
-                        "content": f"Summarize the following information from multiple files:\n\n{consolidated_text}",
+                        "content": f"Consolidate the following information as much detail as possible from multiple files:\n\n{consolidated_text}",
                     },
                 ],
                 temperature=0.1,
                 max_tokens=2048,
                 top_p=1,
                 frequency_penalty=0,
-                presence_penalty=0
+                presence_penalty=0,
             )
 
             summary = response.choices[0].message.content
