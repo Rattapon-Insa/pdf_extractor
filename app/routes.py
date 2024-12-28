@@ -24,13 +24,17 @@ def process_files():
 
     return jsonify({"results": results}), 200
 
-@routes.route('/summarize', methods=['GET'])
+@routes.route('/summarize', methods=['POST'])
 def summarize():
     try:
-        summary = extractor.summarize_all()
+        data = request.get_json()
+        prompt = data.get("prompt", "Summarize the information from the uploaded files.")  # Default prompt
+
+        summary = extractor.summarize_all(prompt=prompt)
         return jsonify({"summary": summary})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 @routes.route('/clear', methods=['POST'])
 def clear_session():

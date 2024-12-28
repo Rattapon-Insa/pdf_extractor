@@ -69,14 +69,23 @@ class Extractor:
         print(f"Extracted text saved to {output_file}")
         return output_file
 
-    def summarize_all(self):
-        """Summarizes the extracted text from all processed files using OpenAI."""
+    def summarize_all(self, prompt=None):
+        """
+        Summarizes the extracted text from all processed files using OpenAI.
+        Allows a custom prompt for flexibility.
+        """
         consolidated_text = ""
         for filename in os.listdir(self.output_folder):
             if filename.endswith(".txt"):
                 file_path = os.path.join(self.output_folder, filename)
                 with open(file_path, "r", encoding="utf-8") as f:
                     consolidated_text += f"\n---\nFile: {filename}\n" + f.read()
+
+        # Use default prompt if no custom prompt is provided
+        prompt = (
+            prompt
+            or "Consolidate the following information in as much detail as possible from multiple files."
+        )
 
         try:
             response = openai.chat.completions.create(
@@ -88,11 +97,11 @@ class Extractor:
                     },
                     {
                         "role": "user",
-                        "content": f"Consolidate the following information as much detail as possible from multiple files:\n\n{consolidated_text}",
+                        "content": f"{prompt}\n\n{consolidated_text}",
                     },
                 ],
                 temperature=0.1,
-                max_tokens=2048,
+                max_tokens=5000,
                 top_p=1,
                 frequency_penalty=0,
                 presence_penalty=0,
