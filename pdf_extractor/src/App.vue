@@ -86,7 +86,7 @@ export default {
       isSummarizing: false,
       isDragOver: false,
       notification: { message: "", type: "" },
-      textFilesAvailable: false, // Tracks if text files are available
+      textFilesAvailable: false,
     };
   },
   methods: {
@@ -124,7 +124,7 @@ export default {
 
         this.showNotification("All files uploaded successfully!", "success");
         this.selectedFiles = [];
-        this.checkTextFiles(); // Check for text files after upload
+        this.checkTextFiles();
       } catch (error) {
         console.error("Upload error:", error);
         this.showNotification("Error uploading files.", "error");
@@ -153,13 +153,11 @@ export default {
       try {
         const response = await axios.post("http://127.0.0.1:5000/clear");
         this.showNotification(response.data.message, "success");
-
-        // Reset frontend state
         this.selectedFiles = [];
         this.summary = "";
         this.uploadedCount = 0;
         this.uploadProgress = 0;
-        this.textFilesAvailable = false; // Reset text file availability
+        this.textFilesAvailable = false;
       } catch (error) {
         console.error("Error clearing session:", error);
         this.showNotification("Failed to clear session.", "error");
@@ -179,11 +177,15 @@ export default {
       setTimeout(() => (this.notification.message = ""), 3000);
     },
     formatSummary(summary) {
-      return summary.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/- /g, "• ");
+      return summary
+        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>") // Bold
+        .replace(/### (.*?)\n/g, "<h3>$1</h3>") // Headings
+        .replace(/- /g, "• ") // Bullet points
+        .replace(/\n/g, "<br>"); // Line breaks
     },
   },
   created() {
-    this.checkTextFiles(); // Check text files on page load
+    this.checkTextFiles();
   },
 };
 </script>
