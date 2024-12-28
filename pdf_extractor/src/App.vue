@@ -1,53 +1,57 @@
 <template>
-  <div :class="['container', { dark: isDarkMode }]">
-    <h1>Gemini + GPT Summarization</h1>
-
-    <!-- Dark Mode Toggle -->
-    <button class="dark-mode-toggle" @click="toggleDarkMode">
-      {{ isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode" }}
-    </button>
-
-    <!-- Drag-and-Drop Upload Section -->
-    <div
-      class="drop-zone"
-      @dragover.prevent
-      @drop.prevent="handleDrop"
-      :class="{ 'drag-over': isDragOver }"
-      @dragenter="isDragOver = true"
-      @dragleave="isDragOver = false"
-    >
-      <p v-if="!selectedFiles.length">Drag and drop files here, or click to select files</p>
-      <input id="files" type="file" multiple @change="onFileChange" :disabled="isUploading || isSummarizing" />
-      <ul v-if="selectedFiles.length">
-        <li v-for="(file, index) in selectedFiles" :key="index">{{ file.name }}</li>
-      </ul>
-    </div>
-
-    <!-- Progress Bar -->
-    <div class="progress-container" v-if="isUploading">
-      <div class="progress-bar" :style="{ width: uploadProgress + '%' }"></div>
-    </div>
-
-    <!-- Action Buttons -->
-    <div class="upload-buttons">
-      <button :disabled="isUploading || isSummarizing || !selectedFiles.length" @click="uploadFiles">
-        {{ isUploading ? `Uploading (${uploadedCount}/${selectedFiles.length})` : "Upload Files" }}
+  <div :class="['app-container', { dark: isDarkMode }]">
+    <header>
+      <h1>Gemini + GPT Summarization</h1>
+      <button class="dark-mode-toggle" @click="toggleDarkMode">
+        {{ isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode" }}
       </button>
-      <button :disabled="isUploading || isSummarizing" @click="summarize">
-        {{ isSummarizing ? "Summarizing..." : "Summarize" }}
-      </button>
-    </div>
+    </header>
 
-    <!-- Notification -->
-    <div v-if="notification.message" :class="['notification', notification.type]">
-      {{ notification.message }}
-    </div>
+    <main>
+      <!-- Drag-and-Drop Upload Section -->
+      <section class="upload-section">
+        <div
+          class="drop-zone"
+          @dragover.prevent
+          @drop.prevent="handleDrop"
+          :class="{ 'drag-over': isDragOver }"
+          @dragenter="isDragOver = true"
+          @dragleave="isDragOver = false"
+        >
+          <p v-if="!selectedFiles.length">Drag and drop files here, or click to select files</p>
+          <input id="files" type="file" multiple @change="onFileChange" :disabled="isUploading || isSummarizing" />
+          <ul v-if="selectedFiles.length">
+            <li v-for="(file, index) in selectedFiles" :key="index">{{ file.name }}</li>
+          </ul>
+        </div>
 
-    <!-- Summary Display -->
-    <div v-if="summary" class="summary-card">
-      <h2>Summary</h2>
-      <div class="summary-content" v-html="formatSummary(summary)"></div>
-    </div>
+        <!-- Progress Bar -->
+        <div class="progress-container" v-if="isUploading">
+          <div class="progress-bar" :style="{ width: uploadProgress + '%' }"></div>
+        </div>
+      </section>
+
+      <!-- Action Buttons -->
+      <section class="action-buttons">
+        <button :disabled="isUploading || isSummarizing || !selectedFiles.length" @click="uploadFiles">
+          {{ isUploading ? `Uploading (${uploadedCount}/${selectedFiles.length})` : "Upload Files" }}
+        </button>
+        <button :disabled="isUploading || isSummarizing" @click="summarize">
+          {{ isSummarizing ? "Summarizing..." : "Summarize" }}
+        </button>
+      </section>
+
+      <!-- Notification -->
+      <div v-if="notification.message" :class="['notification', notification.type]">
+        {{ notification.message }}
+      </div>
+
+      <!-- Summary Display -->
+      <section v-if="summary" class="summary-section">
+        <h2>Summary</h2>
+        <div class="summary-content" v-html="formatSummary(summary)"></div>
+      </section>
+    </main>
   </div>
 </template>
 
@@ -142,21 +146,20 @@ export default {
 </script>
 
 <style scoped>
-/* General Container */
-.container {
-  width: 600px;
-  margin: 0 auto;
+/* General Layout */
+.app-container {
   font-family: Arial, sans-serif;
+  padding: 1rem;
 }
-.container.dark {
-  background-color: #121212;
-  color: #e0e0e0;
-}
-
-/* Heading */
-h1 {
-  text-align: center;
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 1rem;
+}
+main {
+  display: grid;
+  gap: 1rem;
 }
 
 /* Drop Zone */
@@ -166,11 +169,23 @@ h1 {
   text-align: center;
   border-radius: 8px;
   background-color: #f9f9f9;
-  margin: 1rem 0;
-  cursor: pointer;
+  transition: background-color 0.3s;
 }
 .drop-zone.drag-over {
   background-color: #e6f7ff;
+}
+
+/* Dark Mode */
+.app-container.dark {
+  background-color: #121212;
+  color: #e0e0e0;
+}
+.app-container.dark .drop-zone {
+  background-color: #333;
+  border-color: #007bff;
+}
+.app-container.dark .drop-zone.drag-over {
+  background-color: #444;
 }
 
 /* Progress Bar */
@@ -179,27 +194,11 @@ h1 {
   background-color: #f3f3f3;
   border-radius: 4px;
   overflow: hidden;
-  margin: 1rem 0;
 }
 .progress-bar {
   height: 10px;
   background-color: #007bff;
   transition: width 0.3s;
-}
-
-/* Buttons */
-.upload-buttons button {
-  margin-right: 1rem;
-  padding: 0.5rem 1rem;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-.upload-buttons button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
 }
 
 /* Notifications */
@@ -212,7 +211,6 @@ h1 {
   border-radius: 8px;
   color: white;
   font-size: 1rem;
-  z-index: 1000;
 }
 .notification.success {
   background-color: #28a745;
@@ -221,19 +219,14 @@ h1 {
   background-color: #dc3545;
 }
 
-/* Summary Card */
-.summary-card {
+/* Summary Section */
+.summary-section {
   background-color: #ffffff;
   padding: 1.5rem;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-top: 2rem;
 }
-.summary-card h2 {
-  margin-bottom: 1rem;
-}
-.summary-content {
-  font-size: 1rem;
-  line-height: 1.6;
+.app-container.dark .summary-section {
+  background-color: #333;
 }
 </style>
