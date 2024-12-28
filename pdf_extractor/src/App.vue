@@ -2,6 +2,7 @@
   <div class="container">
     <h1>Gemini + GPT Summarization</h1>
 
+    <!-- File Upload Section -->
     <div class="upload-section">
       <label for="files">Select files (images/PDFs):</label>
       <input
@@ -13,6 +14,7 @@
       />
     </div>
 
+    <!-- Action Buttons -->
     <div class="upload-buttons">
       <button
         :disabled="isUploading || isSummarizing || !selectedFiles.length"
@@ -28,6 +30,7 @@
       </button>
     </div>
 
+    <!-- Summary Display Section -->
     <div v-if="summary" class="summary-section">
       <h2>Summary</h2>
       <pre>{{ summary }}</pre>
@@ -36,68 +39,70 @@
 </template>
 
 <script>
-import axios from 'axios'
+import axios from "axios";
 
 export default {
   name: "App",
   data() {
     return {
-      selectedFiles: [],
-      summary: "",
-      isUploading: false,
-      isSummarizing: false
-    }
+      selectedFiles: [], // Tracks selected files for upload
+      summary: "", // Stores summarized text
+      isUploading: false, // Tracks whether an upload is in progress
+      isSummarizing: false, // Tracks whether summarization is in progress
+    };
   },
   methods: {
+    // Triggered when files are selected
     onFileChange(event) {
-      // Convert FileList to an array
-      this.selectedFiles = Array.from(event.target.files)
+      this.selectedFiles = Array.from(event.target.files); // Convert FileList to Array
     },
 
+    // Handles file uploads
     async uploadFiles() {
       if (!this.selectedFiles.length) {
-        alert("No files selected!")
-        return
+        alert("No files selected!");
+        return;
       }
 
-      this.isUploading = true
+      this.isUploading = true; // Set loading state
       try {
-        // Upload each file to your Flask endpoint
         for (let file of this.selectedFiles) {
-          const formData = new FormData()
-          formData.append('file', file)
+          const formData = new FormData();
+          formData.append("file", file);
 
-          await axios.post('http://127.0.0.1:5000/process', formData, {
+          // Send file to the backend
+          await axios.post("http://127.0.0.1:5000/process", formData, {
             headers: {
-              'Content-Type': 'multipart/form-data',
+              "Content-Type": "multipart/form-data",
             },
-          })
+          });
         }
-        alert("All files uploaded successfully!")
-        this.selectedFiles = [] // Clear the file list after upload
+
+        alert("All files uploaded successfully!");
+        this.selectedFiles = []; // Clear selected files
       } catch (error) {
-        console.error("Upload error:", error)
-        alert("Upload error:", error)
+        console.error("Upload error:", error);
+        alert("Error uploading files.");
       } finally {
-        this.isUploading = false
+        this.isUploading = false; // Reset loading state
       }
     },
 
+    // Handles summarization request
     async summarize() {
-      // Disables the Summarize button while summarizing
-      this.isSummarizing = true
+      this.isSummarizing = true; // Set summarization state
       try {
-        const response = await axios.get('http://127.0.0.1:5000/summarize')
-        this.summary = response.data.summary || ""
+        const response = await axios.get("http://127.0.0.1:5000/summarize");
+        this.summary = response.data.summary || "No summary available.";
       } catch (error) {
-        console.error("Summarization error:", error)
-        alert("Summarization error: " + error.message || error);
+        console.error("Summarization error:", error);
+        alert("Error summarizing files.");
       } finally {
-        this.isSummarizing = false
+        this.isSummarizing = false; // Reset summarization state
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -116,5 +121,15 @@ export default {
   background-color: #f5f5f5;
   padding: 1rem;
   border-radius: 4px;
+}
+
+button {
+  margin-right: 1rem;
+  padding: 0.5rem 1rem;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 </style>
