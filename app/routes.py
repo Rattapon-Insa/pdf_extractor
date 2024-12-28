@@ -51,3 +51,11 @@ def clear_session():
         return jsonify({"message": "Session cleared successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@routes.route('/check_text_files', methods=['GET'])
+def check_text_files():
+    try:
+        text_files = [f for f in os.listdir("output_texts") if f.endswith('.txt')]
+        return jsonify({"text_files_available": len(text_files) > 0})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

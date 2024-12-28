@@ -18,9 +18,11 @@
         >
           <p v-if="!selectedFiles.length">Drag and drop files here, or click to select files</p>
           <input id="files" type="file" multiple @change="onFileChange" :disabled="isUploading || isSummarizing" />
-          <ul v-if="selectedFiles.length">
-            <li v-for="(file, index) in selectedFiles" :key="index">{{ file.name }}</li>
-          </ul>
+          <div v-if="selectedFiles.length" class="file-list">
+            <div v-for="(file, index) in selectedFiles" :key="index" class="file-item">
+              {{ file.name }}
+            </div>
+          </div>
         </div>
 
         <!-- Progress Bar -->
@@ -40,13 +42,19 @@
         <button :disabled="isUploading || isSummarizing || !selectedFiles.length" @click="uploadFiles">
           {{ isUploading ? `Uploading (${uploadedCount}/${selectedFiles.length})` : "Upload Files" }}
         </button>
-        <button :disabled="isUploading || isSummarizing" @click="summarize">
+        <button :disabled="isUploading || isSummarizing || !textFilesAvailable" @click="summarize">
           {{ isSummarizing ? "Summarizing..." : "Summarize" }}
         </button>
         <button :disabled="isUploading || isSummarizing" @click="clearSession" class="clear-button">
           Clear Session
         </button>
       </section>
+
+      <!-- Loading Animation -->
+      <div v-if="isSummarizing" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Summarizing... Please wait.</p>
+      </div>
 
       <!-- Notification -->
       <div v-if="notification.message" :class="['notification', notification.type]">
@@ -78,6 +86,7 @@ export default {
       isSummarizing: false,
       isDragOver: false,
       notification: { message: "", type: "" },
+      textFilesAvailable: false, // Tracks if text files are available
     };
   },
   methods: {
@@ -115,6 +124,7 @@ export default {
 
         this.showNotification("All files uploaded successfully!", "success");
         this.selectedFiles = [];
+        this.checkTextFiles(); // Check for text files after upload
       } catch (error) {
         console.error("Upload error:", error);
         this.showNotification("Error uploading files.", "error");
@@ -144,13 +154,24 @@ export default {
         const response = await axios.post("http://127.0.0.1:5000/clear");
         this.showNotification(response.data.message, "success");
 
+        // Reset frontend state
         this.selectedFiles = [];
         this.summary = "";
         this.uploadedCount = 0;
         this.uploadProgress = 0;
+        this.textFilesAvailable = false; // Reset text file availability
       } catch (error) {
         console.error("Error clearing session:", error);
         this.showNotification("Failed to clear session.", "error");
+      }
+    },
+    async checkTextFiles() {
+      try {
+        const response = await axios.get("http://127.0.0.1:5000/check_text_files");
+        this.textFilesAvailable = response.data.text_files_available;
+      } catch (error) {
+        console.error("Error checking text files:", error);
+        this.textFilesAvailable = false;
       }
     },
     showNotification(message, type) {
@@ -160,6 +181,9 @@ export default {
     formatSummary(summary) {
       return summary.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/- /g, "• ");
     },
+  },
+  created() {
+    this.checkTextFiles(); // Check text files on page load
   },
 };
 </script>
@@ -204,24 +228,56 @@ header h1 {
   background-color: #e6f7ff;
 }
 
-/* Progress Bar */
-.progress-container {
-  width: 100%;
-  background-color: #f3f3f3;
-  border-radius: 4px;
+/* File List */
+.file-list {
   margin-top: 1rem;
-  overflow: hidden;
 }
-.progress-bar {
-  height: 10px;
-  background-color: #007bff;
-  transition: width 0.3s;
+.file-item {
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  background-color: #f1f1f1;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9rem;
 }
 
-/* Textarea */
+/* Loading Animation */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 1.2rem;
+  z-index: 1000;
+}
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(255, 255, 255, 0.2);
+  border-top: 5px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Prompt Editor */
 .prompt-editor textarea {
   width: 100%;
-  min-height: 120px; /* Fixed */
+  min-height: 150px;
   padding: 0.5rem;
   font-size: 1rem;
   border: 1px solid #ddd;
@@ -248,14 +304,5 @@ button:hover {
 button:disabled {
   background-color: #cccccc;
   cursor: not-allowed;
-}
-
-/* Summary Section */
-.summary-section h2 {
-  margin-bottom: 1rem;
-}
-.summary-content {
-  font-size: 1rem;
-  line-height: 1.5;
 }
 </style>
