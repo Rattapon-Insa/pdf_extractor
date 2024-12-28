@@ -1,12 +1,13 @@
-\<template>
+<template>
   <div class="app-container">
     <header>
       <h1>Gemini + GPT Summarization</h1>
     </header>
 
     <main>
-      <!-- Drag-and-Drop Upload Section -->
-      <section class="upload-section">
+      <!-- Upload Section -->
+      <section class="card upload-section">
+        <h2>Upload Files</h2>
         <div
           class="drop-zone"
           @dragover.prevent
@@ -28,14 +29,14 @@
         </div>
       </section>
 
-      <!-- Prompt Message Editor -->
-      <section class="prompt-editor">
-        <h3>Customize Summarization Prompt</h3>
+      <!-- Prompt Section -->
+      <section class="card prompt-editor">
+        <h2>Customize Summarization Prompt</h2>
         <textarea v-model="customPrompt" :disabled="isSummarizing"></textarea>
       </section>
 
       <!-- Action Buttons -->
-      <section class="action-buttons">
+      <section class="card action-buttons">
         <button :disabled="isUploading || isSummarizing || !selectedFiles.length" @click="uploadFiles">
           {{ isUploading ? `Uploading (${uploadedCount}/${selectedFiles.length})` : "Upload Files" }}
         </button>
@@ -53,7 +54,7 @@
       </div>
 
       <!-- Summary Display -->
-      <section v-if="summary" class="summary-section">
+      <section v-if="summary" class="card summary-section">
         <h2>Summary</h2>
         <div class="summary-content" v-html="formatSummary(summary)"></div>
       </section>
@@ -68,15 +69,15 @@ export default {
   name: "App",
   data() {
     return {
-      selectedFiles: [], // Tracks selected files for upload
-      uploadProgress: 0, // Tracks upload progress percentage
-      uploadedCount: 0, // Tracks how many files have been uploaded
-      summary: "", // Stores summarized text
-      customPrompt: "Summarize the following information from the uploaded files.", // Default prompt message
-      isUploading: false, // Tracks if upload is in progress
-      isSummarizing: false, // Tracks if summarization is in progress
-      isDragOver: false, // Tracks if a file is being dragged over the drop zone
-      notification: { message: "", type: "" }, // For success/error notifications
+      selectedFiles: [],
+      uploadProgress: 0,
+      uploadedCount: 0,
+      summary: "",
+      customPrompt: "Summarize the following information from the uploaded files.",
+      isUploading: false,
+      isSummarizing: false,
+      isDragOver: false,
+      notification: { message: "", type: "" },
     };
   },
   methods: {
@@ -127,7 +128,7 @@ export default {
 
       try {
         const response = await axios.post("http://127.0.0.1:5000/summarize", {
-          prompt: this.customPrompt, // Pass custom prompt to the backend
+          prompt: this.customPrompt,
         });
         this.summary = response.data.summary || "No summary available.";
         this.showNotification("Summarization complete!", "success");
@@ -143,7 +144,6 @@ export default {
         const response = await axios.post("http://127.0.0.1:5000/clear");
         this.showNotification(response.data.message, "success");
 
-        // Clear frontend data
         this.selectedFiles = [];
         this.summary = "";
         this.uploadedCount = 0;
@@ -155,7 +155,7 @@ export default {
     },
     showNotification(message, type) {
       this.notification = { message, type };
-      setTimeout(() => (this.notification.message = ""), 3000); // Clear notification after 3 seconds
+      setTimeout(() => (this.notification.message = ""), 3000);
     },
     formatSummary(summary) {
       return summary.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/- /g, "• ");
@@ -167,46 +167,95 @@ export default {
 <style scoped>
 /* General Layout */
 .app-container {
-  font-family: Arial, sans-serif;
+  font-family: "Arial", sans-serif;
   padding: 1rem;
+  background-color: #f5f5f5;
 }
+
+/* Header */
 header {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 1rem;
+  text-align: center;
+  margin-bottom: 2rem;
 }
-main {
-  display: grid;
-  gap: 1rem;
+header h1 {
+  font-size: 2rem;
+  color: #333;
+}
+
+/* Card Styles */
+.card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
 }
 
 /* Drop Zone */
 .drop-zone {
   border: 2px dashed #007bff;
-  padding: 1rem;
+  padding: 2rem;
   text-align: center;
   border-radius: 8px;
-  background-color: #f9f9f9;
+  background-color: #ffffff;
   transition: background-color 0.3s;
 }
 .drop-zone.drag-over {
   background-color: #e6f7ff;
 }
 
-/* Prompt Editor */
-.prompt-editor {
+/* Progress Bar */
+.progress-container {
+  width: 100%;
+  background-color: #f3f3f3;
+  border-radius: 4px;
   margin-top: 1rem;
+  overflow: hidden;
 }
+.progress-bar {
+  height: 10px;
+  background-color: #007bff;
+  transition: width 0.3s;
+}
+
+/* Textarea */
 .prompt-editor textarea {
   width: 100%;
-  height: 100px;
+  min-height: 120px; /* Fixed */
   padding: 0.5rem;
   font-size: 1rem;
   border: 1px solid #ddd;
   border-radius: 4px;
+  resize: vertical;
+  box-sizing: border-box;
 }
 
-/* Other Styles */
-/* (same as previous App.vue example for buttons, notifications, etc.) */
+/* Buttons */
+button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 0.7rem 1.2rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-right: 1rem;
+}
+button:hover {
+  background-color: #0056b3;
+}
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+/* Summary Section */
+.summary-section h2 {
+  margin-bottom: 1rem;
+}
+.summary-content {
+  font-size: 1rem;
+  line-height: 1.5;
+}
 </style>
