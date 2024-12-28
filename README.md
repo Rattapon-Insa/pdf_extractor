@@ -2,6 +2,17 @@
 
 The **Gemini + GPT Summarization App** allows users to upload image or PDF files, extract information using Google Gemini, and summarize the extracted data using OpenAI's GPT model. It provides an easy-to-use interface for handling files, customizing prompts, and generating consolidated summaries.
 
+My approach combines the strengths of Gemini and ChatGPT to enhance invoice processing efficiency.
+
+Gemini's Role in Invoice Data Extraction:
+
+Cost-Effective Text Extraction: Gemini is adept at extracting information from invoice images, providing a precise and affordable solution for automating invoice processing. 
+GITHUB
+ChatGPT's Reasoning Capabilities:
+
+Advanced Reasoning: OpenAI's ChatGPT models, particularly the 4o series, are designed to spend more time deliberating before responding, enabling them to tackle complex tasks in science, coding, and mathematics. 
+OPENAI
+
 ---
 
 ## Features
