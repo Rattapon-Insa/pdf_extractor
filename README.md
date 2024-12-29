@@ -1,6 +1,6 @@
-# Gemini + GPT Summarization App
+# Document Scanning Summarization App
 
-The **Gemini + GPT Summarization App** allows users to upload image or PDF files, extract information using Google Gemini, and summarize the extracted data using OpenAI's GPT model. It provides an easy-to-use interface for handling files, customizing prompts, and generating consolidated summaries.
+The **Document Scanning Summarization App** allows users to upload image or PDF files, extract information using Google Gemini, and summarize the extracted data using OpenAI's GPT model. It provides an easy-to-use interface for handling files, customizing prompts, and generating consolidated summaries.
 
 My approach combines the strengths of Gemini and ChatGPT to enhance invoice processing efficiency.
 

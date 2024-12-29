@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <header>
-      <h1>Gemini + GPT Summarization</h1>
+      <h1>Document Scanning Summarization</h1>
     </header>
 
     <main>
