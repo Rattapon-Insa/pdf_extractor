@@ -12,3 +12,4 @@ package.json
 /__pycache__
 .pyc
 /temp_images
+/functions/venv/

@@ -114,7 +114,7 @@ export default {
           const formData = new FormData();
           formData.append("file", this.selectedFiles[i]);
 
-          await axios.post("http://127.0.0.1:5000/process", formData, {
+          await axios.post("http://127.0.0.1:5001/process", formData, {
             headers: { "Content-Type": "multipart/form-data" },
           });
 
@@ -137,7 +137,7 @@ export default {
       this.isSummarizing = true;
 
       try {
-        const response = await axios.post("http://127.0.0.1:5000/summarize", {
+        const response = await axios.post("http://127.0.0.1:5001/summarize", {
           prompt: this.customPrompt,
         });
         this.summary = response.data.summary || "No summary available.";
@@ -151,7 +151,7 @@ export default {
     },
     async clearSession() {
       try {
-        const response = await axios.post("http://127.0.0.1:5000/clear");
+        const response = await axios.post("http://127.0.0.1:5001/clear");
         this.showNotification(response.data.message, "success");
         this.selectedFiles = [];
         this.summary = "";
@@ -165,7 +165,7 @@ export default {
     },
     async checkTextFiles() {
       try {
-        const response = await axios.get("http://127.0.0.1:5000/check_text_files");
+        const response = await axios.get("http://127.0.0.1:5001/check_text_files");
         this.textFilesAvailable = response.data.text_files_available;
       } catch (error) {
         console.error("Error checking text files:", error);
